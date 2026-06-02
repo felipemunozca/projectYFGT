@@ -12,26 +12,29 @@ const totalGastos = document.getElementById("totalGastos");
 const saldoFinal = document.getElementById("saldoFinal");
 const ingresoForm = document.getElementById("ingresoForm");
 const gastoForm = document.getElementById("gastoForm");
+let ingresoFecha = document.getElementById("ingresoFecha");
+let gastoFecha = document.getElementById("gastoFecha");
 
 /**
  * Variables
  */
 let chart;
 const coloresCategory = {
+    "Arriendo": "#FFCE56",
     "Comida": "#FF6384",
     "Transporte": "#36A2EB",
-    "Arriendo": "#FFCE56",
     "Salud": "#4BC0C0",
-    "Ocio": "#9966FF",
+    "Entretención": "#9966FF",
     "Servicios": "#FF9F40",
+    "Devolución Préstamo": "#42f867",
     "Otros": "#8D99AE"
 };
 
 /**
- * Fecha Actual
+ * Fecha Actual formato Chile
  */
-document.getElementById("ingresoFecha").valueAsDate = new Date();
-document.getElementById("gastoFecha").valueAsDate = new Date();
+ingresoFecha = new Date().toLocaleDateString('es-CL');
+gastoFecha = new Date().toLocaleDateString('es-CL');
 
 /**
  * FORMULARIO DE INGRESOS
@@ -47,7 +50,7 @@ ingresoForm.addEventListener("submit", function (e) {
         category: document.getElementById("ingresoCategoria").value,
         description: document.getElementById("ingresoDescripcion").value,
         amount: Number(document.getElementById("ingresoMonto").value),
-        date:document.getElementById("ingresoFecha").value
+        date: document.getElementById("ingresoFecha").value
 
     };
 
@@ -57,7 +60,7 @@ ingresoForm.addEventListener("submit", function (e) {
 
     ingresoForm.reset();
 
-    document.getElementById("ingresoFecha").valueAsDate = new Date();
+    // document.getElementById("ingresoFecha").valueAsDate = new Date();
 
     render();
 
@@ -77,7 +80,7 @@ gastoForm.addEventListener("submit", function (e) {
         category: document.getElementById("gastoCategoria").value,
         description: document.getElementById("gastoDescripcion").value,
         amount: Number(document.getElementById("gastoMonto").value),
-        date:document.getElementById("gastoFecha").value
+        date: document.getElementById("gastoFecha").value
 
     };
 
@@ -87,13 +90,12 @@ gastoForm.addEventListener("submit", function (e) {
 
     gastoForm.reset();
 
-    document.getElementById("gastoFecha").valueAsDate = new Date();
+    // document.getElementById("gastoFecha").valueAsDate = new Date();
 
     render();
 
 });
 
-// GUARDAR
 function guardarTransaccion() {
 
     localStorage.setItem(
@@ -103,7 +105,6 @@ function guardarTransaccion() {
 
 }
 
-// RENDER GENERAL
 function render() {
 
     modelarTransacciones();
@@ -114,7 +115,6 @@ function render() {
 
 }
 
-// TABLA
 function modelarTransacciones() {
 
     listaTransacciones.innerHTML = "";
@@ -144,7 +144,7 @@ function modelarTransacciones() {
 
                     ${transaction.type === "income" ? "+" : "-"}
 
-                    ${formatMoney(transaction.amount)}
+                    ${formatoDinero(transaction.amount)}
                 </td>
 
                 <td>${transaction.date}</td>
@@ -163,7 +163,6 @@ function modelarTransacciones() {
 
 }
 
-// RESUMEN
 function modelarTotales() {
 
     let ingresos = 0;
@@ -194,17 +193,16 @@ function modelarTotales() {
 
     const total = ingresos - gastos;
 
-    totalIngresos.textContent = formatMoney(ingresos);
+    totalIngresos.textContent = formatoDinero(ingresos);
 
-    totalGastos.textContent = formatMoney(gastos);
+    totalGastos.textContent = formatoDinero(gastos);
 
-    saldoFinal.textContent = formatMoney(total);
+    saldoFinal.textContent = formatoDinero(total);
 
     saldoFinal.className = total >= 0 ? "money-positive" : "money-negative";
 
 }
 
-// GRÁFICO
 function modelarGrafico() {
 
     const gastos = transacciones.filter(
@@ -216,9 +214,7 @@ function modelarGrafico() {
     gastos.forEach(expense => {
 
         if (!grouped[expense.category]) {
-
             grouped[expense.category] = 0;
-
         }
 
         grouped[expense.category] += expense.amount;
@@ -271,7 +267,6 @@ function modelarGrafico() {
 
 }
 
-// ELIMINAR
 function eliminarTransaccion(id) {
 
     transacciones = transacciones.filter(
@@ -284,8 +279,7 @@ function eliminarTransaccion(id) {
 
 }
 
-// ELIMINAR TODO
-function limpiarTodo() {
+function eliminarTodo() {
 
     if (confirm("¿Desea eliminar todos los movimientos?")) {
         transacciones = [];
@@ -297,8 +291,10 @@ function limpiarTodo() {
 
 }
 
-// FORMATO DINERO
-function formatMoney(value) {
+/**
+ * Formatear valores números a dinero en formato Chile
+ */
+function formatoDinero(value) {
 
     return new Intl.NumberFormat("es-CL", {
         style: "currency",
@@ -307,5 +303,7 @@ function formatMoney(value) {
 
 }
 
-// INICIALIZAR
+/**
+ * Inicializar el programa.
+ */
 render();
