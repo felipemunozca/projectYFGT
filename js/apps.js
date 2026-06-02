@@ -14,6 +14,7 @@ const ingresoForm = document.getElementById("ingresoForm");
 const gastoForm = document.getElementById("gastoForm");
 let ingresoFecha = document.getElementById("ingresoFecha");
 let gastoFecha = document.getElementById("gastoFecha");
+const filtroCategorias = document.getElementById("filtroCategorias");
 
 /**
  * Variables
@@ -27,7 +28,7 @@ const coloresCategory = {
     "Entretención": "#9966FF",
     "Servicios": "#FF9F40",
     "Devolución Préstamo": "#42f867",
-    "Otros": "#8D99AE"
+    "Otros Gastos": "#8D99AE"
 };
 
 /**
@@ -96,6 +97,8 @@ gastoForm.addEventListener("submit", function (e) {
 
 });
 
+filtroCategorias.addEventListener("change", modelarTransacciones);
+
 function guardarTransaccion() {
 
     localStorage.setItem(
@@ -119,7 +122,18 @@ function modelarTransacciones() {
 
     listaTransacciones.innerHTML = "";
 
-    transacciones
+    const filtrarCategoria = filtroCategorias.value;
+
+    const transaccionesFiltradas = transacciones.filter(transaction => {
+
+        const coincidencia = filtrarCategoria === "" || transaction.category === filtrarCategoria;
+
+        return coincidencia;
+
+    });
+
+
+    transaccionesFiltradas
         .sort((a, b) =>
             new Date(b.date) - new Date(a.date)
         )
@@ -131,9 +145,9 @@ function modelarTransacciones() {
 
                 <td>
                     ${transaction.type === "income"
-                        ?`<span class="badge badge-income">Ingreso</span>`
-                        :`<span class="badge badge-expense">Gasto</span>`
-                    }
+                    ? `<span class="badge badge-income">Ingreso</span>`
+                    : `<span class="badge badge-expense">Gasto</span>`
+                }
                 </td>
 
                 <td>${transaction.category}</td>
@@ -168,14 +182,14 @@ function modelarTotales() {
     let ingresos = 0;
     let gastos = 0;
 
-    for(const t of transacciones){
-        if(t.type === "income"){
+    for (const t of transacciones) {
+        if (t.type === "income") {
             ingresos += t.amount;
         }
     }
 
-    for(const t of transacciones){
-        if(t.type === "expense"){
+    for (const t of transacciones) {
+        if (t.type === "expense") {
             gastos += t.amount;
         }
     }
@@ -285,7 +299,7 @@ function eliminarTodo() {
         transacciones = [];
 
         guardarTransaccion();
-        
+
         render();
     }
 
